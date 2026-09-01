@@ -1,0 +1,16 @@
+[General]
+bypass-system = true
+skip-proxy = 192.168.0.0/16, 10.0.0.0/8, 172.16.0.0/12, localhost, *.local
+bypass-tun = 10.0.0.0/8, 100.64.0.0/10, 127.0.0.0/8, 169.254.0.0/16, 172.16.0.0/12, 192.168.0.0/16, 224.0.0.0/4, 255.255.255.255/32
+
+[MITM]
+# Chỉ giữ lại các tên miền thuộc YouTube
+hostname = *.googlevideo.com, youtubei.googleapis.com
+
+[Script]
+# Đoạn script xử lý chặn quảng cáo video/banner và kích hoạt PiP
+YouTube_AdBlock = type=http-response,pattern=^https:\/\/youtubei\.googleapis\.com\/youtubei\/v1\/(browse|next|player|search|reel\/reel_watch_sequence),script-path=https://raw.githubusercontent.com/Gaucuto/ver2promax/main/youtube.js,requires-body=true,max-size=524288,timeout=10
+
+[URL Rewrite]
+# Chặn luồng khởi tạo quảng cáo của YouTube
+^https?:\/\/[\w-]+\.googlevideo\.com\/initplayback\? reject
