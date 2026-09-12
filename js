@@ -1,39 +1,50 @@
-// Build: 2025/3/30 17:50:34
-(() => {
-  var Ar = Object.defineProperty;
-  var jr = (l, e, t) => e in l ? Ar(l, e, {
-      enumerable: !0,
-      configurable: !0,
-      writable: !0,
-      value: t
-  }) : l[e] = t;
-  var ce = (l, e, t) => (jr(l, typeof e != "symbol" ? e + "" : e, t), t);
-  (function(l) {
-      function e() {}
+/*
+ * Script xử lý chặn quảng cáo và bật PiP cho YouTube trên Shadowrocket
+ */
 
-      function t() {}
-      var n = String.fromCharCode,
-          i = {}.toString,
-          r = i.call(l.SharedArrayBuffer),
-          c = i(),
-          a = l.Uint8Array,
-          o = a || Array,
-          s = a ? ArrayBuffer : o,
-          d = s.isView || function(B) {
-              return B && "length" in B
-          },
-          g = i.call(s.prototype);
-      s = t.prototype;
-      var b = l.TextEncoder,
-          m = new(a ? Uint16Array : o)(32);
-      e.prototype.decode = function(B) {
-          if (!d(B)) {
-              var D = i.call(B);
-              if (D !== g && D !== r && D !== c) throw TypeError("Failed to execute 'decode' on 'TextDecoder': The provided value is not of type '(ArrayBuffer or ArrayBufferView)'");
-              B = a ? new o(B) : B || []
+const path = $request.url;
+let body = $response.body;
+
+if (body) {
+  try {
+    let obj = JSON.parse(body);
+
+    // 1. Xóa quảng cáo trong Luồng Video (Player)
+    if (obj.adPlacements) {
+      delete obj.adPlacements;
+    }
+    if (obj.adSlots) {
+      delete obj.adSlots;
+    }
+
+    // 2. Xóa các mục quảng cáo trên Trang chủ & Danh sách đề xuất (Browse / Search / Next)
+    if (obj.contents) {
+      if (obj.contents.singleColumnBrowseResultsRenderer) {
+        let tabs = obj.contents.singleColumnBrowseResultsRenderer.tabs;
+        tabs.forEach(tab => {
+          if (tab.tabRenderer && tab.tabRenderer.content) {
+            let sectionList = tab.tabRenderer.content.sectionListRenderer;
+            if (sectionList && sectionList.contents) {
+              sectionList.contents = sectionList.contents.filter(item => !item.adSlotRenderer);
+            }
           }
-          for (var S = D = "", k = 0, T = B.length | 0, le = T - 32 | 0, C, x, L = 0, _ = 0, A, $ = 0, j = -1; k < T;) {
-              for (C = k <= le ? 32 : T - k | 0; $ < C; k = k + 1 | 0, $ = $ + 1 | 0) {
+        });
+      }
+    }
+
+    // 3. Kích hoạt tính năng Play Background (Chạy nền / Picture-in-Picture)
+    if (obj.playerConfig && obj.playerConfig.audioConfig) {
+      obj.playerConfig.audioConfig.enableBackgroundPlayback = true;
+    }
+
+    $done({ body: JSON.stringify(obj) });
+  } catch (e) {
+    // Nếu dữ liệu không phải JSON thuần, trả về gói tin gốc để tránh crash app
+    $done({ body });
+  }
+} else {
+  $done({});
+}
                   switch (x = B[k] & 255, x >> 4) {
                       case 15:
                           if (A = B[k = k + 1 | 0] & 255, A >> 6 !== 2 || 247 < x) {
